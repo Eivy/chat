@@ -47,7 +47,7 @@ func server(addr string) (listener net.Listener, ch chan error) {
 
 	go func() {
 		mux := http.NewServeMux()
-		mux.HandleFunc("/room", chatRoom)
+		mux.HandleFunc("/", chatRoom)
 		mux.HandleFunc("/signup", signUp)
 		mux.HandleFunc("/signin", signIn)
 		mux.Handle("/ws", s.WebsocketHandler())

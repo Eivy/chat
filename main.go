@@ -2,10 +2,12 @@ package main
 
 import (
 	"crypto/sha256"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -122,10 +124,22 @@ func chatRoom(w http.ResponseWriter, r *http.Request) {
 	} else {
 		u = c.Value
 	}
+	var m []Message
+	if _, err := os.Stat("message.json"); err == nil {
+		if f, err := os.Open("message.json"); err == nil {
+			if b, err := ioutil.ReadAll(f); err == nil {
+				err := json.Unmarshal(b, &m)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
+	}
 	data := Data{
 		Port:     fmt.Sprint(port),
 		HostName: r.Host,
 		UserName: u,
+		Messages: m,
 	}
 	t := template.Must(template.ParseFiles("assets/room.html"))
 	if err := t.Execute(w, data); err != nil {

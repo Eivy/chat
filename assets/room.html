@@ -99,7 +99,9 @@
 </head>
 <body>
     <h2>WebSocket Test</h2>
-    <div id="output"></div>
+    <div id="output">
+    {{ range .Messages }}<pre><div class="message"><span class="user">{{ .Username }}:</span> <pre>{{ .Message }}</pre><span class="time">{{ .Time }}</span></div></pre>{{ end }}
+    </div>
     <div class="field">
         <textarea id="message"></textarea>
         <input type="hidden" id="username" value="{{ .UserName }}"/>

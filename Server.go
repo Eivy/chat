@@ -1,6 +1,14 @@
 package main
 
-import "golang.org/x/net/websocket"
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"sync"
+
+	"golang.org/x/net/websocket"
+)
 
 type Server struct {
 	clientCount    int
@@ -38,6 +46,7 @@ func (s *Server) sendMessage(m string) {
 }
 
 func (s *Server) Start() {
+	mutex := new(sync.Mutex)
 	for {
 		select {
 		case c := <-s.addClientCh:
@@ -45,8 +54,49 @@ func (s *Server) Start() {
 		case c := <-s.removeClientCh:
 			s.removeClient(c)
 		case m := <-s.messageCh:
+			go messageLog(m, mutex)
 			s.sendMessage(m)
 		}
+	}
+}
+
+func messageLog(s string, m *sync.Mutex) {
+	m.Lock()
+	defer m.Unlock()
+	f, err := os.OpenFile("message.json", os.O_CREATE|os.O_RDWR, 0666)
+	defer f.Close()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	var messages []Message
+	err = json.Unmarshal(b, &messages)
+	if err != nil {
+		messages = make([]Message, 0)
+	}
+	f.Close()
+	var message Message
+	err = json.Unmarshal([]byte(s), &message)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	if len(messages) > 20 {
+		messages = messages[2:]
+	}
+	f, err = os.Create("message.json")
+	defer f.Close()
+	messages = append(messages, message)
+	b, err = json.Marshal(messages)
+	_, err = f.Write(b)
+	if err != nil {
+		fmt.Println("failed")
+		return
 	}
 }
 

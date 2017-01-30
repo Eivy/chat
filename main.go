@@ -68,7 +68,7 @@ func signIn(w http.ResponseWriter, r *http.Request) {
 			Value: hash,
 		}
 		http.SetCookie(w, c)
-		http.Redirect(w, r, "/room", http.StatusSeeOther)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 	fmt.Println(err)
@@ -93,7 +93,7 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 			Value: fmt.Sprintf("%x", sha256.Sum256([]byte(email+password))),
 		}
 		http.SetCookie(w, c)
-		http.Redirect(w, r, "/room", http.StatusSeeOther)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 	if f, e := os.Open("assets/signup.html"); e == nil {

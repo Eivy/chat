@@ -42,6 +42,11 @@
         var f = document.getElementsByClassName('field')[0];
         var r = f.getBoundingClientRect();
         window.scrollTo(0, r.top + window.pageYOffset);
+
+        if (Notification.permission === "granted" && message['Hash'] !== document.getElementById('username').value) { // すでに通知の許可を得ているか確認する
+            // 許可を得ている場合は、通知を作成する
+            var notification = new Notification(message['Message']);
+        }
     }
 
     function onError(evt) {
@@ -69,6 +74,7 @@
     }
 
     window.addEventListener("load", init, false);
+    Notification.requestPermission();
     </script>
     <style type="text/css">
     .message {
